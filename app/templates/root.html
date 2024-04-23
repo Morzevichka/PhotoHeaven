@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block style %}
+
+{% endblock %}
+{% block app_content %}
+    <h1>Admin Panel</h1>
+    <ul>
+        <a href="?action=list_users">List of Users</a>
+        <a href="?action=delete_users">Delete Users</a>
+        <a href="?action=add_users">Add Users</a>
+    </ul>
+    {% if route == 'list_users' %}
+        <!-- Содержимое страницы List of Users -->
+        <h2>List of Users</h2>
+        <!-- Здесь может быть код для отображения списка пользователей -->
+    {% elif route == 'delete_users' %}
+        <!-- Содержимое страницы Delete Users -->
+        <h2>Delete Users</h2>
+        <!-- Здесь может быть код для удаления пользователей -->
+    {% elif route == 'add_users' %}
+        <!-- Содержимое страницы Add Users -->
+        <h2>Add Users</h2>
+        <!-- Здесь может быть форма для добавления пользователей -->
+    {% endif %}
+{% endblock %}
