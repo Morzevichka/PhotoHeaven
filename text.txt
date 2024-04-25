@@ -1,0 +1,44 @@
+#page_layout {
+      display: flex;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      position: relative;
+      width: 100px;
+      background-color: #f8f9fa;
+      height: 100%;
+    }
+
+    .logo {
+      position: fixed;
+      top: 10px;
+      left: 15px;
+      max-width: 60px;
+    }
+
+    .menu { 
+      position: relative;
+      text-align: center;
+    }
+
+    .menu a {
+      display: flex;
+      flex-flow: column;
+      color: black;
+      padding: 5px;
+    }
+
+    #vertical_menu { 
+      padding-top: 75px;
+    }
+
+    #bottom_selects { 
+      position: absolute;
+      bottom: 0;
+    }
+    
+    #page_body {
+      margin-left: 90px;
+      width: 100%;
+    }

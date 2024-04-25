@@ -1,88 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      {% if title %}
-        <title>{{ title }}</title>
-      {% else %}
-        <title>Welcome Page</title>
-      {% endif %}
-      <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-      <style>
-        .logo {
-          top: 10px;
-          left: 20px;
-          position: fixed;
-          z-index: 1;
-          max-width: 70px;
-        }
-        
-        .vertical-menu  {
-          position: fixed;
-          top: 0;
-          bottom: 0;
-          width: 110px;
-          background-color: #f8f9fa;
-          padding-top: 90px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if title %}
+    <title>{{ title }}</title>
+  {% else %}
+    <title>Welcome Page</title>
+  {% endif %}
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    #page_layout {
+      display: flex;
+      height: 100%;
+    }
 
-        .vertical-menu a {
-          display: block;
-          padding: 7px;
-          color: #333;
-          text-align: center;
-        }
+    #side_bar {
+      width: 100px;
+      height: 100vh;
+      display: flex;
+      flex-flow: column;
+      background-color: #f8f9fa;
+    }
 
-        .bottom-selects {
-          padding: 7px;
-          position: fixed;
-          bottom: 0;
-          width: 110px;
-        }
-      </style>
-      {% block style %}{% endblock %}
+    .logo {
+      display: flex;
+      justify-content: center;
+      height: 60px;
+      margin-top: 5px;
+    }
+
+    #vertical_menu a, #bottom-selects a {
+      display: flex;
+      justify-content: center;
+      color: black;
+      padding: 4px;
+    }
+
+    #vertical_menu { 
+      padding-top: 15px;
+    }
+
+    #bottom-selects {
+      margin-top: auto;
+      padding-bottom: 10px;
+    }
+
+    #page_body { 
+      width: 100%;
+    }
+  </style>
+  {% block style %}{% endblock %}
 </head>
 <body>
-  <div class="row">
-    <div class="col-auto">
+  <div id="page_layout">
+    <div id="side_bar">
       <div class="logo">
         <img src="{{ url_for('static', filename='favicon.ico') }}", class="logo">
       </div>
-      <div class="vertical-menu">
+      <div id="vertical_menu">
         <a href="{{ url_for('index') }}">Home</a>
-        {% if not current_user.is_anonymous%}
+        {% if not current_user.is_anonymous %}
           <a href="{{ url_for('account') }}">Account</a>
         {% endif %}
         {% if current_user.username == 'root' %}
-          <a href=" {{ url_for('admin') }}">{{ current_user.username }}</a>
+          <a href="{{ url_for('admin') }}">{{ current_user.username }}</a>
         {% endif %}
-        <div class="bottom-selects">
-          {% if current_user.is_anonymous %}
-            <a href="{{ url_for('register') }}">Sing up</a>
-            <a href="{{ url_for('login') }}">Sing in</a>
-          {% else %}
-            <a href="{{ url_for('logout') }}">Log out</a>
-          {% endif %}
-        </div>
+      </div>
+      <div id="bottom-selects">
+        {% if current_user.is_anonymous %}
+          <a href="{{ url_for('register') }}">Sign up</a>
+          <a href="{{ url_for('login') }}">Log in</a>
+        {% else %}
+          <a href="{{ url_for('logout') }}">Log out</a>
+        {% endif %}
       </div>
     </div>
-  </div>
-
-  <div class="col-auto", style="margin-left: 110px;">
-    <div class="container">
-      {% with messages = get_flashed_messages(with_categories=true) %}
+    <div id="page_body">
+        {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
-              {% for category,message in messages %}
-                  <div class="alert alert-{{ category }}", style="text-align: center;">
-                      {{ message }}
-                  </div>
-              {% endfor %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" style="text-align: center;">
+                {{ message }}
+              </div>
+            {% endfor %}
           {% endif %}
-      {% endwith %}
-    </div>
-    {% block app_content %}{% endblock %}
+        {% endwith %}
+        {% block app_content %}{% endblock %}
+      </div>
   </div>
 </body>
 </html>
