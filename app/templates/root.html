@@ -1,31 +1,70 @@
 {% extends 'base.html' %}
 {% block style %}
 <style>
-    .container { 
+    .menu{ 
+       display: flex;
+       justify-content: space-between;
+       padding-bottom: 15px;
+    }
+    .menu a {
+        padding-left: 20px;
+        padding-right: 20px;
+        color: black;
+    }
+    table {
+        width: 90%;
+        margin: auto;
+        
+    }
+    th, td {
+        text-align: center;
+        border: 1px solid black;
+        padding: 8px;
         text-align: center;
     }
-    
-    .container a {
-        margin-right: 20px;
-        border: 1px solid black;
-        border-radius: 10%;
-        padding: 8px;
-        color: black;
+    th {
+        background-color: #f2f2f2;
     }
 </style>
 {% endblock %}
 {% block app_content %}
     <h1 style="text-align: center;">Admin Panel</h1>
-    <div class="">
+    <div class="menu">
         <a href="?action=list_users">List of Users</a>
         <a href="?action=delete_users">Delete Users</a>
         <a href="?action=add_users">Add Users</a>
+        <a href="?action=delete_db">Delete all database</a>
     </div>
     {% if route == 'list_users' %}
-        <h2>List of Users</h2>
-    {% elif route == 'delete_users' %}
-        <h2>Delete Users</h2>
-    {% elif route == 'add_users' %}
-        <h2>Add Users</h2>
-    {% endif %}
+        <table> 
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Status</th>
+            </tr>
+            {% for user in users %}
+                <tr>
+                    <td>{{user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.status }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    <div class="del_add">
+        {% elif route == 'delete_users' %}
+            <form style="text-align: center">
+                <label for="del_user">Enter username to delete:</label><br>
+                <input type="text" id="del_user" name="del_user"><br>
+                <input type="submit" value="Send Request" style="margin-top: 10px"/>
+            </form>
+        {% elif route == 'add_users' %}
+            <form style="text-align: center">
+                <label for="add_user">Username</label><br>
+                <input type="text" id="add_user" name="add_user"><br>
+                <label for="passwd_user">Password</label><br>
+                <input type="password" id="passwd_user" name="passwd_user"><br>
+                <input type="submit" value="Send Request" style="margin-top: 10px"/>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}
