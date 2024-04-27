@@ -32,8 +32,8 @@
     <div class="menu">
         <a href="?action=list_users">List of Users</a>
         <a href="?action=delete_users">Delete Users</a>
-        <a href="?action=add_users">Add Users</a>
-        <a href="?action=delete_db">Delete all database</a>
+        <a href="?action=change_status">Change status</a>
+        <a href="?action=delete_db_submit">Delete all database</a>
     </div>
     {% if route == 'list_users' %}
         <table> 
@@ -41,12 +41,14 @@
                 <th>Id</th>
                 <th>Username</th>
                 <th>Status</th>
+                <th>Role</th>
             </tr>
             {% for user in users %}
                 <tr>
                     <td>{{user.id }}</td>
                     <td>{{ user.username }}</td>
                     <td>{{ user.status }}</td>
+                    <td>{{ user.role }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -57,14 +59,19 @@
                 <input type="text" id="del_user" name="del_user"><br>
                 <input type="submit" value="Send Request" style="margin-top: 10px"/>
             </form>
-        {% elif route == 'add_users' %}
-            <form style="text-align: center">
-                <label for="add_user">Username</label><br>
-                <input type="text" id="add_user" name="add_user"><br>
-                <label for="passwd_user">Password</label><br>
-                <input type="password" id="passwd_user" name="passwd_user"><br>
-                <input type="submit" value="Send Request" style="margin-top: 10px"/>
-            </form>
+        {% elif route == 'change_status' %}
+        <form style="text-align: center">
+            <label for="change_status">Enter username to change status:</label><br>
+            <input type="text" id="change_status" name="change_status" style="margin-bottom: 10px;"><br>
+            <button type="submit" name="status" value="ACTIVE">ACTIVE</button>
+            <button type="submit" name="status" value="DEACTIVATED">DEACTIVATED</button>
+            <button type="submit" name="status" value="BANNED">BANNED</button>
+        </form>
+        {% elif route == 'delete_db_submit' %}
+        <form action="/admin?action=delete_db" method="post" style="text-align: center;">
+            <p>Are you sure?</p>
+            <input type="submit" value="Delete Database" />
+        </form>
         {% endif %}
     </div>
 {% endblock %}

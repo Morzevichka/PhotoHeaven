@@ -70,10 +70,9 @@
         {% if not current_user.is_anonymous %}
           <a href="{{ url_for('account') }}">Account</a>
         {% endif %}
-        {% if current_user.username == 'root' %}
-          <a href="{{ url_for('admin') }}">{{ current_user.username }}</a>
-        {% endif %}
-      </div>
+        {% if current_user.role == "ROOT" %}
+          <a href="{{ url_for('admin') }}">Admin</a>
+        {% endif %}      </div>
       <div id="bottom-selects">
         {% if current_user.is_anonymous %}
           <a href="{{ url_for('register') }}">Sign up</a>

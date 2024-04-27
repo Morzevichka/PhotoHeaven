@@ -12,5 +12,4 @@ migrate = Migrate(app, db)
 bootstarp = Bootstrap(app)
 login = LoginManager(app)
 
-
 from app import entity, routes, forms

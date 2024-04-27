@@ -26,7 +26,6 @@ def register():
             flash('Login is taken', 'warning') #fix this flash
             return redirect(url_for("index"))
         user = User(username=form.username.data)
-        user.set_status("Active")
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -43,8 +42,11 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Incorrect login or password', 'warning')
             return redirect(url_for("login"))
+        if user.status != "ACTIVE":
+            flash("Your account was deactivated or banned", 'danger')
+            return redirect(url_for("login"))
         login_user(user, remember=form.remember_me.data)
-        flash('Seccussful Sign In', 'success')
+        flash('Seccussful Log In', 'success')
         return redirect(url_for("index"))
     return render_template('login.html', title="Sign in", form=form)
 
@@ -52,12 +54,12 @@ def login():
 def account():
     return render_template("base.html", title="Account") 
 
-@app.route("/admin")
+@app.route("/admin", methods=["POST", "GET"])
 def admin():
     action = request.args.get("action", "")
     del_user = request.args.get("del_user")
-    add_user = request.args.get("add_user")
-    passwd_user = request.args.get("passwd_user")
+    change_status = request.args.get("change_status")
+    status_to_change = request.args.get("status")
     users = User.query.all()
     if del_user:
         user_to_delete = User.query.filter_by(username=del_user).first()
@@ -68,27 +70,27 @@ def admin():
             return redirect(url_for("admin"))
         else:
             flash(f'User with {user_to_delete} not found', 'danger')
-
-    if add_user:
-        if User.query.filter_by(username=add_user).first():
-            flash("Username is taken", "danger")
-        user = User(username=add_user)
-        user.set_status("Active")
-        user.set_password(passwd_user)
-        db.session.add(user)
-        db.session.commit()
-        flash(f'User {user.username} was successfully sign up', "success")
-        return redirect(url_for("admin"))
     
-    if action == "delete_db":
-        # for user in users:
-        #     if user.username != "root":
-        #         db.session.delete(user)
-        #         db.session.commit()
-        for table_name in db.metadata.tables:
-            db.session.execute(db.table(table_name).delete())
+    if change_status:
+        user = User.query.filter_by(username=change_status).first()
+        if user is None:
+            flash(f'Username {change_status} is not found', 'danger')
+            return redirect(url_for("admin"))
+        user.status = status_to_change
         db.session.commit()
-        return redirect(url_for("index"))
+        flash(f'Status was change to {user.status}', 'success')
+        return redirect(url_for("admin"))
+
+
+    if action == "delete_db":
+        for user in users:
+            if user.role != "ROOT" or user.username != "root":
+                db.session.delete(user)
+                db.session.commit()
+        # for table_name in db.metadata.tables:
+        #     db.session.execute(db.table(table_name).delete())
+        # db.session.commit()
+        # return redirect(url_for("index"))
     return render_template("root.html", route=action, users=users)
 
 @app.route("/logout")
