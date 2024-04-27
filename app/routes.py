@@ -2,7 +2,6 @@ from app import app
 from app import db
 from app.forms import RegisterForm, LoginForm
 from app.entity import User
-from sqlalchemy import update
 import os
 from flask import render_template, send_from_directory, flash, request, redirect, url_for
 from flask_login import current_user, login_user, logout_user
@@ -57,29 +56,21 @@ def account():
 @app.route("/admin", methods=["POST", "GET"])
 def admin():
     action = request.args.get("action", "")
-    del_user = request.args.get("del_user")
-    change_status = request.args.get("change_status")
-    status_to_change = request.args.get("status")
+    username = request.args.get("username")
+    status = request.args.get("status")
     users = User.query.all()
-    if del_user:
-        user_to_delete = User.query.filter_by(username=del_user).first()
-        if user_to_delete:
-            db.session.delete(user_to_delete)
-            db.session.commit()
-            flash(f'User {user_to_delete.username} was successful deleted', 'success')
-            return redirect(url_for("admin"))
-        else:
-            flash(f'User with {user_to_delete} not found', 'danger')
-    
-    if change_status:
-        user = User.query.filter_by(username=change_status).first()
-        if user is None:
-            flash(f'Username {change_status} is not found', 'danger')
-            return redirect(url_for("admin"))
-        user.status = status_to_change
+    if action == "delete":
+        user_to_delete = User.query.filter_by(username=username).first()
+        db.session.delete(user_to_delete)
         db.session.commit()
-        flash(f'Status was change to {user.status}', 'success')
-        return redirect(url_for("admin"))
+        flash(f'User {user_to_delete.username} was successful deleted', 'success')
+        return redirect("/admin?action=list_users")
+    
+    if status is not None:
+        user = User.query.filter_by(username=username).first()
+        user.status = status
+        db.session.commit()
+        return redirect("/admin?action=list_users")
 
 
     if action == "delete_db":

@@ -1,7 +1,4 @@
 from app import db
-from enum import Enum
-from sqlalchemy import String
-from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import UserMixin
