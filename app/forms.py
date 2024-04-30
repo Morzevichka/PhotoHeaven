@@ -1,19 +1,12 @@
 from wtforms import StringField, BooleanField, SubmitField, PasswordField
 from flask_wtf import FlaskForm
-from wtforms.validators import EqualTo, ValidationError, DataRequired
-from app.entity import User
-
+from wtforms.validators import EqualTo, DataRequired, Length
 
 class RegisterForm(FlaskForm):
-    username = StringField("Login", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    password2 = PasswordField("Password", validators=[DataRequired(), EqualTo("password", "Passwords are not the same")])
+    username = StringField("Login", validators=[DataRequired(), Length(min=4, max=20)])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=4, max=12)])
+    password2 = PasswordField("Password", validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField("Sing up")
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError("Login is taken!")
 
 class LoginForm(FlaskForm):
     username = StringField('Login', validators=[DataRequired()])

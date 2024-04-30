@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-bootstarp = Bootstrap(app)
+bootstrap = Bootstrap(app)
 login = LoginManager(app)
 
-from app import entity, routes, forms
+from app import models, forms, routes
