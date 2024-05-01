@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% block style %}
 <style>
-    .login { 
+    #login { 
         text-align: center;
     }
 </style>
 {% endblock %}
 {% block app_content%}
-<div class="login">
+<div id="login">
     <h1>Log in</h1>
     <form action="", method="post", class="form">
         {{ form.hidden_tag() }}
@@ -27,5 +27,6 @@
             {{ form.submit(class_="btn btn-secondary", style="background-color: #808080; color:white")}}
         </p>
     </form>
+    <p>Новый пользователь? <a href="{{ url_for('register') }}">Нажмите для регистрации.</a></p>
 </div>
 {% endblock %}

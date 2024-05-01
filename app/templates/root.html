@@ -7,32 +7,33 @@
        padding-bottom: 15px;
     }
     .menu a {
-        padding-left: 130px;
-        padding-right: 130px;
+        padding: 0 130px;
         color: black;
     }
+
     table {
         width: 90%;
-        margin: auto;
-        
+        margin: auto; 
     }
+
     th, td {
         text-align: center;
         border: 1px solid black;
         padding: 8px;
-        text-align: center;
     }
+
     th {
         background-color: #f2f2f2;
     }
+    
 </style>
 {% endblock %}
 {% block app_content %}
     <h1 style="text-align: center;">Admin Panel</h1>
-    <div class="menu">
+    <nav class="menu">
         <a href="?action=list_users">List of Users</a>
         <a href="?action=delete_db_submit">Delete all database</a>
-    </div>
+    </nav>
     {% if route == 'list_users' %}
         <table> 
             <tr>

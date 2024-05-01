@@ -46,7 +46,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         flash('Seccussful Log In', 'success')
         return redirect(url_for("index"))
-    return render_template('login.html', title="Sign in", form=form)
+    return render_template('login.html', title="Log in", form=form)
 
 @app.route("/logout")
 def logout():
@@ -97,8 +97,13 @@ def admin():
         #     db.session.execute(db.table(table_name).delete())
         # db.session.commit()
         # return redirect(url_for("index"))
-    return render_template("root.html", route=action, users=users)
+    return render_template("root.html", route=action, users=users, title="Admin Panel")
 
 @app.route("/account")
 def account():
-    return render_template("base.html", title="Account") 
+    list_of_files = [str(f) for f in os.listdir(os.path.join(uploadsdir, str(current_user.id)))]
+    return render_template("account.html", title=current_user.username, photos=list_of_files)
+
+@app.route("/post")
+def makepost():
+    return render_template("base.html", title="Make Post")
