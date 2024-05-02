@@ -131,8 +131,13 @@
 {% block app_content %}
 <div id="page_loadout">
     <header id="profile-header">
-        <div><strong>{{ current_user.username}}</strong></div>
-        <a href="{{ url_for('index') }}" class="btn btn-dark">Edit Profile</a>
+        <div><strong>{{ user.username }}</strong></div>
+        {% if current_user.username == user.username%}
+            <a href="{{ url_for('index') }}" class="btn btn-dark">Edit Profile</a>
+        {% else %}
+        <!-- can add follow list in db -->
+            <a href="{{ url_for('index') }}" class="btn btn-dark">Follow</a>
+        {% endif %}
     </header>
     <div id="between">
         posts
@@ -141,21 +146,23 @@
         <div class="posts">
             {% for photo in photos %}
                 <div class="post">
-                    <img src="{{ url_for('static', filename='uploads/10/' + photo) }}"/>
-                    <div class="dropdown">
-                        <button onclick="DropdownActions('{{ loop.index }}')" class="dropbtn">...</button>
-                        <div id="dropdownItems{{ loop.index }}" class="dropdown_content">
-                            <a href="?delete={{photo}}">Delete</a>
+                    <img src="{{ url_for('static', filename='uploads/' + user.id|string + '/' + photo) }}"/>
+                    {% if current_user.username == user.username%}
+                        <div class="dropdown">
+                            <button onclick="DropdownActions('{{ loop.index }}')" class="dropbtn">...</button>
+                            <div id="dropdownItems{{ loop.index }}" class="dropdown_content">
+                                <a href="?delete={{photo}}">Delete</a>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
             {% endfor %}
-            <a onclick="openModal()" id="add_photo_container" href="#">
-                <img src="{{ url_for('static', filename='icons/Iconsmind-Outline-Add.512.png') }}"/>
-            </a>
+            {% if current_user.username == user.username%}
+                <a onclick="openModal()" id="add_photo_container" href="#">
+                    <img src="{{ url_for('static', filename='icons/Iconsmind-Outline-Add.512.png') }}"/>
+                </a>
+            {% endif %}
         </div>
-    {% else %}
-    <div>Sorry, we didn't find any photos</div>
     {% endif %}
     
     <div id="modal">

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block style %}
+<style>
+    #search_page { 
+        margin: 10px 20%;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    header#search_form {
+        width: 100%;
+    }
+
+    #title h2{
+        text-align: center;
+    }
+
+    #search_input { 
+        text-align: center;
+        padding-bottom: 30px;
+    }
+    
+    .user_container { 
+        border: 1px solid black; 
+        margin-bottom: 10px; 
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .user_load {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .start { 
+        flex: 1;
+    }
+
+    .center_item { 
+        flex: 1;
+    }
+
+</style>
+{% endblock %}
+{% block app_content %}
+<div id="search_page">
+    <header id="search_form">
+        <div id="title">
+            <h2>Find User</h>
+        </div>
+        <div id="search_input">
+            <form action="?username=">
+                <input type="text" name="username" value="{{ request.args.get('username', '') }}"/>
+                <input type="submit" value="Search">
+            </form>
+        </div>
+    </header>
+    <div>
+        {% if list_of_users|length > 0 %}
+            {% for user in list_of_users %}
+            <div class="user_container">
+                <div class="user_load">
+                    <div class="start">
+                        <a><strong>{{ user.username }}</strong></a>
+                    </div>
+                    <div class="center_item">
+                        <a>{{ list_of_number_photo[loop.index0] }} POSTS</a>
+                    </div>
+                    <div class="finish">
+                        <a href="/{{user.username}}" class="btn btn-dark">Go To</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

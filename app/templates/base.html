@@ -66,10 +66,9 @@
       <nav id="vertical_menu">
         <ul>
           <li><a href="{{ url_for('index') }}" class="btn">Home</a></li>
-          <!-- <li><a></a>Search</li> -->
+          <li><a href="{{ url_for('search') }}" class="btn">Search</a></li>
           {% if not current_user.is_anonymous %}
-            <li><a href="{{ url_for('account') }}" class="btn">Account</a></li>
-            <li><a href="{{ url_for('makepost') }}" class="btn">Post</a></li>
+            <li><a href="{{ url_for('profile', username=current_user.username) }}" class="btn">Account</a></li>
           {% endif %}
           {% if current_user.role == "ROOT" %}
             <li><a href="{{ url_for('admin') }}" class="btn">Admin</a></li>

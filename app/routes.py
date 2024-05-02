@@ -1,13 +1,27 @@
+from functools import wraps
 from app import app, db
 from app.forms import LoginForm, RegisterForm
 from flask import flash, redirect, request, url_for, render_template, send_from_directory, abort
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from config import uploadsdir, ALLOWED_EXTENSIONS
 import os
 from app.models import User
 import shutil
 from werkzeug.utils import secure_filename
 
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def current_user_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if current_user.is_anonymous:
+            return redirect(url_for('login'))
+        if current_user.username != kwargs.get('username'):
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated_function
 
 @app.route("/singup", methods=["POST", "GET"])
 def register():
@@ -94,41 +108,47 @@ def admin():
                 shutil.rmtree(os.path.join(uploadsdir, str(user.id)), ignore_errors=True)
                 db.session.delete(user)
                 db.session.commit()
-        # for table_name in db.metadata.tables:
-        #     db.session.execute(db.table(table_name).delete())
-        # db.session.commit()
-        # return redirect(url_for("index"))
     return render_template("root.html", route=action, users=users, title="Admin Panel")
 
-@app.route("/account", methods=["POST", "GET"])
-def account():
-    list_of_files = [str(file) for file in os.listdir(os.path.join(uploadsdir, str(current_user.id)))]
-    name_photo_delete = request.args.get("delete")
-    if name_photo_delete is not None:
-        os.remove(os.path.join(uploadsdir, str(current_user.id), str(name_photo_delete)))
-        return redirect(url_for("account"))
-    return render_template("account.html", title=current_user.username, photos=list_of_files)
+@app.route("/<username>", methods=["POST", "GET"])
+def profile(username):
+    user = User.query.filter_by(username=username).first()
+    list_of_files = [str(file) for file in os.listdir(os.path.join(uploadsdir, str(user.id)))]
+    if current_user.is_authenticated:
+        if user.username == current_user.username:
+            name_photo_delete = request.args.get("delete")
+            if name_photo_delete is not None:
+                os.remove(os.path.join(uploadsdir, str(current_user.id), str(name_photo_delete)))
+                return redirect(url_for("profile", username=current_user.username))
+    return render_template("profile.html", title=user.username, photos=list_of_files, user=user)
 
-@app.route("/post")
-def makepost():
-    return render_template("base.html", title="Make Post")
-
+@current_user_required
+@login_required
 @app.route("/upload", methods=["POST"])
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', 'warning')
-            return redirect(url_for("account"))
+            return redirect(url_for("profile", username=current_user.username))
         file = request.files['file']
         if file.name == '':
             flash('No selected file', 'warning')
-            return redirect(url_for("account"))
+            return redirect(url_for("profile", username=current_user.username))
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(uploadsdir, str(current_user.id), filename))
-            return redirect(url_for("account"))
-    return redirect(url_for("account"))
+            return redirect(url_for("profile", username=current_user.username))
+    return redirect(url_for("profile", username=current_user.username))
 
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+@app.route("/search")
+def search():
+    username_to_find = request.args.get("username")
+    list_of_users = []
+    list_of_number_photo = []
+    if username_to_find is not None:
+        list_of_users = User.query.filter(User.username.ilike(f'%{username_to_find}%')).all()
+        for user in list_of_users:
+            list_of_number_photo.append(len([str(file) for file in os.listdir(os.path.join(uploadsdir, str(user.id)))]))
+        print(list_of_number_photo)
+        print(list_of_users)
+    return render_template("search.html", list_of_users=list_of_users, list_of_number_photo=list_of_number_photo)
