@@ -2,6 +2,7 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 uploadsdir = os.path.join(basedir, r'app\static\uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your_secret_key'

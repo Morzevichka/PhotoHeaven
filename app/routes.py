@@ -2,10 +2,11 @@ from app import app, db
 from app.forms import LoginForm, RegisterForm
 from flask import flash, redirect, request, url_for, render_template, send_from_directory, abort
 from flask_login import current_user, login_user, logout_user
-from config import uploadsdir
+from config import uploadsdir, ALLOWED_EXTENSIONS
 import os
 from app.models import User
 import shutil
+from werkzeug.utils import secure_filename
 
 
 @app.route("/singup", methods=["POST", "GET"])
@@ -99,11 +100,35 @@ def admin():
         # return redirect(url_for("index"))
     return render_template("root.html", route=action, users=users, title="Admin Panel")
 
-@app.route("/account")
+@app.route("/account", methods=["POST", "GET"])
 def account():
-    list_of_files = [str(f) for f in os.listdir(os.path.join(uploadsdir, str(current_user.id)))]
+    list_of_files = [str(file) for file in os.listdir(os.path.join(uploadsdir, str(current_user.id)))]
+    name_photo_delete = request.args.get("delete")
+    if name_photo_delete is not None:
+        os.remove(os.path.join(uploadsdir, str(current_user.id), str(name_photo_delete)))
+        return redirect(url_for("account"))
     return render_template("account.html", title=current_user.username, photos=list_of_files)
 
 @app.route("/post")
 def makepost():
     return render_template("base.html", title="Make Post")
+
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'warning')
+            return redirect(url_for("account"))
+        file = request.files['file']
+        if file.name == '':
+            flash('No selected file', 'warning')
+            return redirect(url_for("account"))
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(uploadsdir, str(current_user.id), filename))
+            return redirect(url_for("account"))
+    return redirect(url_for("account"))
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

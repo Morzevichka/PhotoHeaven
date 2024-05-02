@@ -1,24 +1,26 @@
 {% extends 'base.html' %}
+
 {% block style %}
 <style>
-    .page_loadout { 
+    /* style for main content */
+    #page_loadout { 
         margin: 0 10vw;
         height: 100vh;
     }
 
-    header.profile-header {
+    header#profile-header {
         display: flex;
         justify-content: space-evenly;
         align-items: center;
-        margin: 20px;
+        margin: 20px 20px 15px 20px;
         width: 100%;
     }
 
-    #under_profile {
+    #between {
         border-top: 1px solid black;
         text-align: center;
-        margin-bottom: 10px;
-        padding-top: 10px;
+        margin-bottom: 7px;
+        padding-top: 7px;
 
     }
 
@@ -42,25 +44,152 @@
         height: 100%;
         object-fit: cover;
     }
+
+    #add_photo_container {
+        position: relative;
+        padding-top: 100%;
+    }
+
+    #add_photo_container img {
+        position: absolute;
+        top: 25%;
+        left: 25%;
+        width: 50%;
+    }
+
+    /* style for dropdown function */
+    .dropdown {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+
+    .dropbtn { 
+        border: 1px solid black;
+        border-radius: 5px;
+        color: black;
+        background-color: rgba(255, 255, 255);
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .dropbtn:hover, .dropbtn:focus {
+        background-color: rgba(255, 255, 255, 0.5);
+    } 
+
+    .dropdown_content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+
+    .dropdown_content a {
+        color: black;
+        padding: 4px 20px;
+        display: block;
+    }
+
+    .show {display:block;}
+
+    /* style for modal */
+    #modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal_content {
+        background-color: white;
+        margin: 10vw auto;
+        width: 70%;
+        padding: 20px;
+        border: 1px solid #888;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
 </style>
 {% endblock %}
 {% block app_content %}
-<div class="page_loadout">
-    <header class="profile-header">
-        <div><strong>Username</strong></div>
+<div id="page_loadout">
+    <header id="profile-header">
+        <div><strong>{{ current_user.username}}</strong></div>
         <a href="{{ url_for('index') }}" class="btn btn-dark">Edit Profile</a>
     </header>
-    <div id="under_profile">{{ photos|length }} POSTS</div>
-    {% if photos|length != 0 %}
+    <div id="between">
+        posts
+    </div>
+    {% if photos|length >= 0 %}
         <div class="posts">
             {% for photo in photos %}
                 <div class="post">
                     <img src="{{ url_for('static', filename='uploads/10/' + photo) }}"/>
+                    <div class="dropdown">
+                        <button onclick="DropdownActions('{{ loop.index }}')" class="dropbtn">...</button>
+                        <div id="dropdownItems{{ loop.index }}" class="dropdown_content">
+                            <a href="?delete={{photo}}">Delete</a>
+                        </div>
+                    </div>
                 </div>
             {% endfor %}
+            <a onclick="openModal()" id="add_photo_container" href="#">
+                <img src="{{ url_for('static', filename='icons/Iconsmind-Outline-Add.512.png') }}"/>
+            </a>
         </div>
     {% else %}
-        <div>Sorry, we didn't find any photos</div>
+    <div>Sorry, we didn't find any photos</div>
     {% endif %}
+    
+    <div id="modal">
+        <div class="modal_content">
+            <span class="close">&times;</span>
+            <form action="upload" method="post" enctype="multipart/form-data">
+                <label for="upload"> Your file:</label>
+                <input type="file" id="file" name="file"><br> 
+                <input type="submit" value="Send Photo">
+            </form>
+        </div>
+    </div>
 </div>
+    
+
+<script>
+function openModal() {
+    var modal = document.getElementById("modal");
+    modal.style.display = "block";
+  }
+  
+  var closeBtn = document.getElementsByClassName("close")[0];
+  closeBtn.onclick = function() {
+    var modal = document.getElementById("modal");
+    modal.style.display = "none";
+  }
+  
+  window.onclick = function(event) {
+    var modal = document.getElementById("modal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+  }
+
+</script>
 {% endblock %}
+
