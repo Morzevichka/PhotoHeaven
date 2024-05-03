@@ -135,8 +135,11 @@
         {% if current_user.username == user.username%}
             <a href="{{ url_for('index') }}" class="btn btn-dark">Edit Profile</a>
         {% else %}
-        <!-- can add follow list in db -->
-            <a href="{{ url_for('index') }}" class="btn btn-dark">Follow</a>
+            {% if isFollowing is true and current_user.is_authenticated %}
+                <a href="?unfollow={{ user.username }}" class="btn btm-primary">Following</a>
+            {% elif current_user.is_authenticated %}
+                <a href="?follow={{ user.username }}" class="btn btn-dark">Follow</a>
+            {% endif %}
         {% endif %}
     </header>
     <div id="between">

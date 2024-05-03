@@ -5,7 +5,8 @@ from flask import flash, redirect, request, url_for, render_template, send_from_
 from flask_login import current_user, login_user, logout_user, login_required
 from config import uploadsdir, ALLOWED_EXTENSIONS
 import os
-from app.models import User
+from app.models.user import User
+from app.models.follow import Follow
 import shutil
 from werkzeug.utils import secure_filename
 
@@ -113,14 +114,31 @@ def admin():
 @app.route("/<username>", methods=["POST", "GET"])
 def profile(username):
     user = User.query.filter_by(username=username).first()
+    if not user:
+        abort(404)
     list_of_files = [str(file) for file in os.listdir(os.path.join(uploadsdir, str(user.id)))]
+
     if current_user.is_authenticated:
-        if user.username == current_user.username:
+        username_to_follow = User.query.filter_by(username=request.args.get("follow")).first()
+        if username_to_follow and not Follow.find_following(username_to_follow.username, current_user.id):
+            follow = Follow(follow_username=username_to_follow.username, user_id=current_user.id)
+            db.session.add(follow)
+            db.session.commit()
+            return redirect(url_for("profile", username=username_to_follow.username))
+        
+        username_to_unfollow = Follow.find_following(request.args.get("unfollow"), current_user.id)
+        if username_to_unfollow:
+            db.session.delete(username_to_unfollow)
+            db.session.commit()
+            return redirect(url_for("profile", username=request.args.get("unfollow")))
+        
+        if request.args.get("delete") and user.username == current_user.username:
             name_photo_delete = request.args.get("delete")
-            if name_photo_delete is not None:
+            if os.path.exists(os.path.join(uploadsdir, str(current_user.id), str(name_photo_delete))):
                 os.remove(os.path.join(uploadsdir, str(current_user.id), str(name_photo_delete)))
                 return redirect(url_for("profile", username=current_user.username))
-    return render_template("profile.html", title=user.username, photos=list_of_files, user=user)
+    isFollowing = True if Follow.query.filter_by(follow_username=username, user_id=current_user.id).first() else False
+    return render_template("profile.html", title=user.username, photos=list_of_files, user=user, isFollowing=isFollowing)
 
 @current_user_required
 @login_required
@@ -149,6 +167,4 @@ def search():
         list_of_users = User.query.filter(User.username.ilike(f'%{username_to_find}%')).all()
         for user in list_of_users:
             list_of_number_photo.append(len([str(file) for file in os.listdir(os.path.join(uploadsdir, str(user.id)))]))
-        print(list_of_number_photo)
-        print(list_of_users)
     return render_template("search.html", list_of_users=list_of_users, list_of_number_photo=list_of_number_photo)

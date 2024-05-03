@@ -12,4 +12,5 @@ migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)
 login = LoginManager(app)
 
-from app import models, forms, routes
+from app import forms, routes
+from app.models import user, follow

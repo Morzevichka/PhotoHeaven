@@ -60,19 +60,21 @@
     <div>
         {% if list_of_users|length > 0 %}
             {% for user in list_of_users %}
-            <div class="user_container">
-                <div class="user_load">
-                    <div class="start">
-                        <a><strong>{{ user.username }}</strong></a>
+                {% if user.username != current_user.username %}
+                    <div class="user_container">
+                        <div class="user_load">
+                            <div class="start">
+                                <a><strong>{{ user.username }}</strong></a>
+                            </div>
+                            <div class="center_item">
+                                <a>{{ list_of_number_photo[loop.index0] }} POSTS</a>
+                            </div>
+                            <div class="finish">
+                                <a href="/{{user.username}}" class="btn btn-dark">Go To</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="center_item">
-                        <a>{{ list_of_number_photo[loop.index0] }} POSTS</a>
-                    </div>
-                    <div class="finish">
-                        <a href="/{{user.username}}" class="btn btn-dark">Go To</a>
-                    </div>
-                </div>
-            </div>
+                {% endif %}
             {% endfor %}
         {% endif %}
     </div>
